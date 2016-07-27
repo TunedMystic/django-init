@@ -1,0 +1,45 @@
+version: '2'
+services:
+
+
+  # Nginx
+  nginx:
+    image: evild/alpine-nginx:mainline-openssl
+    container_name: nginx
+    restart: always
+    links:
+      - app
+    volumes:
+      - ./deploy/nginx/nginx.conf:/etc/nginx/conf/nginx.conf
+    volumes_from:
+      - app
+    ports:
+      - '80:80'
+
+
+  # Application
+  app:
+    build: ./app
+    image: jsanweb/django-app
+    container_name: app
+    restart: always
+    volumes:
+      - ./app:/app
+    depends_on:
+      - db
+    environment:
+      DEBUG: 'True'
+    # stdin_open: true
+    # tty: true
+    command: python manage.py runserver 0.0.0.0:8001
+
+
+  # Database
+  db:
+    image: postgres:9.4
+    container_name: db
+    environment:
+      POSTGRES_USER: datab
+      POSTGRES_PASSWORD: datab
+      PGPASSWORD: datab
+      POSTGRES_DB: datab
